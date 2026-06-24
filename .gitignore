@@ -6,6 +6,7 @@
 # NOTE: whitelist
 !/databases/
 !/webserver/
+!/sonarqube/
 
 # NOTE: blacklist
 /databases/pg_data/
