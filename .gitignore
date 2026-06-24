@@ -12,5 +12,6 @@
 # NOTE: blacklist
 /databases/pg_data/
 /databases/data/
+/9router/data/
 **/.env
 **/*.log
