@@ -1,10 +1,13 @@
 /*
 
+# NOTE: except this file
 !.gitignore
 
+# NOTE: whitelist
 !/databases/
 !/webserver/
 
+# NOTE: blacklist
 /databases/pg_data/
 /databases/data/
 **/.env
