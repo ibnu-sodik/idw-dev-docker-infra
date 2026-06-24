@@ -1,0 +1,11 @@
+/*
+
+!.gitignore
+
+!/databases/
+!/webserver/
+
+/databases/pg_data/
+/databases/data/
+**/.env
+**/*.log

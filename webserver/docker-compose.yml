@@ -1,0 +1,35 @@
+# docker-compose.yml
+services:
+  php82:
+    build: ./php82
+    container_name: php82
+    restart: unless-stopped
+    volumes:
+      - /home/dev_php:/home/dev_php
+    networks:
+      - dev_network
+
+  php85:
+    build: ./php85
+    container_name: php85
+    restart: unless-stopped
+    volumes:
+      - /home/dev_php:/home/dev_php
+    networks:
+      - dev_network
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - /home/dev_php:/home/dev_php
+      - ./conf.d:/etc/nginx/conf.d
+    networks:
+      - dev_network
+
+networks:
+  dev_network:
+    external: true
