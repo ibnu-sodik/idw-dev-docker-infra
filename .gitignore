@@ -7,6 +7,7 @@
 !/databases/
 !/webserver/
 !/sonarqube/
+!/9router/
 
 # NOTE: blacklist
 /databases/pg_data/
