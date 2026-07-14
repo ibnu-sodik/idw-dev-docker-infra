@@ -9,6 +9,7 @@
 !/sonarqube/
 !/9router/
 !/odoo/
+!/.github/
 
 # NOTE: blacklist
 /databases/pg_data/
