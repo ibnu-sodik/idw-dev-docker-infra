@@ -8,10 +8,12 @@
 !/webserver/
 !/sonarqube/
 !/9router/
+!/odoo/
 
 # NOTE: blacklist
 /databases/pg_data/
 /databases/data/
+/databases/odoo_data/
 /9router/data/
 **/.env
 **/*.log
