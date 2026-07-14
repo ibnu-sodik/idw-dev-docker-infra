@@ -1,0 +1,13 @@
+# Config dengan password (jangan di-commit)
+config/odoo.conf
+
+# Runtime data
+data/
+
+# Python cache di custom modules
+addons/**/__pycache__/
+addons/**/*.pyc
+addons/**/*.pyo
+
+# Odoo session
+*.sessions

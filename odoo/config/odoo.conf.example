@@ -1,0 +1,12 @@
+[options]
+; Database connection (replace with your own)
+# db_host = db
+# db_port = 5432
+# db_user = odoo
+# db_password = odoo
+# db_name = False
+
+; Admin password (replace with your own)
+# admin_passwd = admin
+
+; Other options...
