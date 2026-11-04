@@ -2,5 +2,6 @@
 .env.local
 
 /conf.d/
+markdown/
 
 *.log
