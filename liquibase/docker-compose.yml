@@ -1,0 +1,19 @@
+services:
+  liquibase:
+    image: liquibase/liquibase:latest
+    container_name: liquibase
+    env_file:
+      - .env
+    environment:
+      - LIQUIBASE_COMMAND_URL=${LIQUIBASE_URL}
+      - LIQUIBASE_COMMAND_USERNAME=${LIQUIBASE_USER}
+      - LIQUIBASE_COMMAND_PASSWORD=${LIQUIBASE_PASSWORD}
+      - LIQUIBASE_COMMAND_CHANGELOG_FILE=${LIQUIBASE_CHANGELOG_FILE}
+    volumes:
+      - ./changelog:/liquibase/changelog
+    networks:
+      - dev_network
+
+networks:
+  dev_network:
+    external: true
