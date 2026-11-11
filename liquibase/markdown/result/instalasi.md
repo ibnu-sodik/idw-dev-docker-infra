@@ -94,3 +94,52 @@ Masuk ke direktori `liquibase/` dan jalankan perintah Liquibase:
 2. `/liquibase/markdown/cara-penggunaan.md`: Diperbarui (checklist goals `[x]`).
 3. `/liquibase/markdown/result/instalasi.md`: Diperbarui (penambahan section Cara Penggunaan).
 
+
+## 6. Test Liquibase & Kegunaan (Plan 2 & 3)
+
+### A. Jawaban Plan 2: Multi-Database pada MySQL Instance
+- **Pertanyaan**: Apakah Liquibase membuat changelog untuk semua database (satu per satu) atau hanya 1 changelog untuk semua database?
+- **Jawaban**: Liquibase **hanya membuat changelog dan tracking tables (`DATABASECHANGELOG`, `DATABASECHANGELOGLOCK`) pada 1 database spesifik** yang ditentukan di dalam JDBC URL (`LIQUIBASE_URL`).
+- **Penjelasan**: Walaupun instance MySQL menampung banyak database (misal `dev_db_mysql`, `midtrans_billing_db`, `ebimbel_course`, dll.), koneksi JDBC Liquibase terikat ke satu database target pada satu waktu (`jdbc:mysql://mysql:3306/dev_db_mysql`). Untuk menerapkannya ke banyak database, jalankan command Liquibase per database atau gunakan script iterasi (loop).
+
+### B. Kegunaan & Fungsi Liquibase (Plan 3)
+1. **Version Control Skema**: Menyimpan riwayat perubahan DDL dalam format teks (`changelog.sql`).
+2. **Multi-RDBMS Support**: Konsisten di MySQL, PostgreSQL, Oracle, dll.
+3. **Automated & Idempotent Migration**: Mencegah migrasi ganda dengan tabel audit `DATABASECHANGELOG`.
+4. **Rollback Capability**: Mendukung rollback skema secara aman.
+
+### C. File yang Diperbarui / Dibuat
+1. `/liquibase/.env`: Diperbarui (`LIQUIBASE_URL` menggunakan JDBC MySQL dan `INSTALL_MYSQL=true`).
+2. `/liquibase/.env.example`: Diperbarui template JDBC MySQL.
+3. `/liquibase/docker-compose.yml`: Ditambahkan environment `INSTALL_MYSQL=true` agar container otomatis menginstal MySQL JDBC driver via `lpm`.
+4. `/liquibase/markdown/cara-penggunaan.md`: Diperbarui (checklist goals `[x]` dan jawaban plan 2 & 3).
+5. `/liquibase/markdown/result/instalasi.md`: Ditambahkan Section 6 dokumentasi hasil Plan 2 & 3.
+
+
+## 7. Praktik Penggunaan pada Database `masterep-annursulsel` (Plan 4)
+
+### A. Alur Praktik
+1. **Konfigurasi Environment**: `liquibase/.env` dikonfigurasi ke `jdbc:mysql://mysql:3306/masterep-annursulsel?useSSL=false&allowPublicKeyRetrieval=true`.
+2. **Generate Changelog**: Mengekstrak 96 tabel eksisting dari `masterep-annursulsel` menjadi file `liquibase/changelog/changelog.mysql.sql` menggunakan perintah:
+   ```bash
+   docker compose run --rm liquibase generate-changelog --changelog-file=changelog.mysql.sql
+   ```
+3. **Changelog-Sync**: Menyinkronkan riwayat database eksisting tanpa menjalankan ulang DDL:
+   ```bash
+   docker compose run --rm liquibase changelog-sync
+   ```
+4. **Penambahan Changeset Baru & Update**: Menambahkan changeset `plan4-demo` (`CREATE TABLE IF NOT EXISTS liquibase_demo_log`) dan mengeksekusinya:
+   ```bash
+   docker compose run --rm liquibase update
+   ```
+5. **Rollback Uji Coba**: Menguji pembatalan changeset:
+   ```bash
+   docker compose run --rm liquibase rollback-count 1
+   ```
+
+### B. File yang Dibuat / Diperbarui untuk Plan 4
+1. `/liquibase/changelog/changelog.mysql.sql`: File changelog format SQL yang digenerate dari `masterep-annursulsel` beserta changeset demo `plan4-demo`.
+2. `/liquibase/markdown/praktik-masterep-annursulsel.md`: Dokumen panduan khusus praktik Plan 4.
+3. `/liquibase/markdown/cara-penggunaan.md`: Checklist goals plan 4 diubah menjadi `[x]`.
+4. `/liquibase/markdown/result/instalasi.md`: Ditambahkan Section 7 dokumentasi hasil praktik Plan 4.
+
