@@ -166,3 +166,56 @@ Masuk ke direktori `liquibase/` dan jalankan perintah Liquibase:
 1. `/liquibase/markdown/cara-penggunaan.md`: Ditambahkan jawaban langsung pada Plan 5 serta checklist goal `[x]`.
 2. `/liquibase/markdown/result/instalasi.md`: Ditambahkan Section 8 untuk dokumentasi jawaban Plan 5.
 
+## 9. Sinkronisasi Struktur Antar-Database (`masterep_darish` vs `masterep-annursulsel`) (Plan 6)
+
+### A. Jawaban Kasus Plan 6
+- **Jawaban**: **SANGAT BISA**.
+- **Penjelasan**: Liquibase memiliki perintah built-in **`diff-changelog`** (atau `diff`) yang dirancang khusus untuk membandingkan dua database berbeda (`reference-url` sebagai master/rujukan dan `url` sebagai target). Liquibase otomatis mendeteksi perbedaan tabel, kolom, tipe data, foreign key, atau index yang hilang di target, lalu men-generate file migration changelog.
+
+### B. Cara Praktis Melakukan Sinkronisasi
+1. **Jalankan Perintah `diff-changelog`**:
+   ```bash
+   cd /root/dev_docker/liquibase
+   docker compose run --rm liquibase diff-changelog \
+     --reference-url="jdbc:mysql://mysql:3306/masterep_darish?useSSL=false&allowPublicKeyRetrieval=true" \
+     --reference-username=root \
+     --reference-password=rootMysqlVM2026 \
+     --url="jdbc:mysql://mysql:3306/masterep-annursulsel?useSSL=false&allowPublicKeyRetrieval=true" \
+     --username=root \
+     --password=rootMysqlVM2026 \
+     --changelog-file=changelog/diff-darish-to-annursulsel.mysql.sql
+   ```
+2. **Preview SQL Sebelum Eksekusi (Dry-Run)**:
+   ```bash
+   docker compose run --rm liquibase update-sql --changelog-file=changelog/diff-darish-to-annursulsel.mysql.sql
+   ```
+3. **Terapkan Perubahan ke Target (`masterep-annursulsel`)**:
+   ```bash
+   docker compose run --rm liquibase update --changelog-file=changelog/diff-darish-to-annursulsel.mysql.sql
+   ```
+   Setelah perintah `update` dijalankan, seluruh tabel dan struktur dari `masterep_darish` yang sebelumnya kurang di `masterep-annursulsel` akan otomatis dibuat/disamakan.
+
+### C. Penanganan Error Saat Migrasi Sinkronisasi
+1. **Error Syntax MySQL 8 (`on update CURRENT_TIMESTAMP`)**:
+   - *Masalah*: Query `ALTER TABLE ... ALTER col SET DEFAULT (CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP)` tidak didukung MySQL 8.0.
+   - *Solusi*: Diubah menggunakan syntax `MODIFY COLUMN`:
+     ```sql
+     ALTER TABLE debit_temp MODIFY debit_temp_input_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+     ALTER TABLE employee MODIFY employee_input_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+     ```
+2. **Error Data Truncation (Nilai `NULL` pada kolom `NOT NULL`)**:
+   - *Masalah*: Mengubah `student_madin` menjadi `NOT NULL` gagal karena ada 10 baris data eksisting yang bernilai `NULL`.
+   - *Solusi*: Update data `NULL` terlebih dahulu sebelum mengubah definisi kolom:
+     ```sql
+     UPDATE student SET student_madin = '' WHERE student_madin IS NULL;
+     ALTER TABLE student MODIFY student_madin VARCHAR(50) NOT NULL;
+     ```
+3. **Hasil Akhir**: Setelah perbaikan syntax dan data, 310 changeset berhasil dijalankan (`Liquibase: Update has been successful. Rows affected: 190`). Jumlah tabel `masterep-annursulsel` kini sinkron (240 tabel).
+
+
+### C. File yang Diperbarui / Dibuat untuk Plan 6
+1. `/liquibase/changelog/diff-darish-to-annursulsel.mysql.sql`: File changelog hasil perbandingan struktur antara `masterep_darish` dan `masterep-annursulsel`.
+2. `/liquibase/markdown/cara-penggunaan.md`: Ditambahkan jawaban Plan 6 serta update checklist goal `[x]`.
+3. `/liquibase/markdown/result/instalasi.md`: Ditambahkan Section 9 dokumentasi penanganan Plan 6.
+
+
