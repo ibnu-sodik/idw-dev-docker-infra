@@ -143,3 +143,26 @@ Masuk ke direktori `liquibase/` dan jalankan perintah Liquibase:
 3. `/liquibase/markdown/cara-penggunaan.md`: Checklist goals plan 4 diubah menjadi `[x]`.
 4. `/liquibase/markdown/result/instalasi.md`: Ditambahkan Section 7 dokumentasi hasil praktik Plan 4.
 
+
+## 8. Jawaban Pertanyaan Alur Kerja Migrasi vs GUI Database (Plan 5)
+
+### A. Perubahan/Alter Tabel: Liquibase vs Navicat?
+- **Jawaban**: Perubahan skema (`CREATE`, `ALTER`, `DROP`) **wajib dilakukan melalui Liquibase** (menambahkan `changeset` baru di file changelog kemudian menjalankan `docker compose run --rm liquibase update`), **bukan** langsung melalui Navicat.
+- **Alasan**:
+  1. **Single Source of Truth**: File changelog di Git menjadi satu-satunya acuan struktur database.
+  2. **Konsistensi Multi-Environment**: Perubahan yang ditulis di changelog dapat langsung dijalankan secara identik di komputer developer lain, server staging, maupun production.
+  3. **Audit & Rollback**: Setiap perubahan memiliki ID, Author, waktu eksekusi, serta skrip `-- rollback`.
+
+### B. Apakah `DATABASECHANGELOG` & `DATABASECHANGELOGLOCK` Terisi Otomatis Saat Ubah via Navicat?
+- **Jawaban**: **TIDAK**.
+- **Alasan**:
+  1. Liquibase bekerja sebagai **CLI/Client Tool**, bukan background service atau database trigger di dalam MySQL.
+  2. Tabel `DATABASECHANGELOG` hanya di-insert saat perintah Liquibase (`update` atau `changelog-sync`) dijalankan.
+  3. Tabel `DATABASECHANGELOGLOCK` hanya digunakan oleh Liquibase saat proses migrasi sedang berjalan (`LOCKED = 1`) untuk mencegah dua proses Liquibase berjalan bersamaan, lalu dikembalikan ke `LOCKED = 0` saat selesai.
+- **Solusi Jika Terlanjur Mengubah via Navicat (Schema Drift)**:
+  - Tuliskan SQL perubahan yang baru saja dilakukan di Navicat ke dalam file changelog sebagai changeset baru, lalu jalankan `docker compose run --rm liquibase changelog-sync` agar tercatat di `DATABASECHANGELOG` tanpa dieksekusi ulang.
+
+### C. File yang Diperbarui untuk Plan 5
+1. `/liquibase/markdown/cara-penggunaan.md`: Ditambahkan jawaban langsung pada Plan 5 serta checklist goal `[x]`.
+2. `/liquibase/markdown/result/instalasi.md`: Ditambahkan Section 8 untuk dokumentasi jawaban Plan 5.
+
