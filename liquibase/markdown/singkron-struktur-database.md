@@ -47,11 +47,58 @@ Dokumen ini sebagai panduan penggunaan liquibase dalam menyingkronkan struktur d
 
    Apa yang membedakan format file changelog `.sql` dan `.xml`, kemudian mana yang lebih baik digunakan?
 
+4. **Pasca jalankan script ulang**
+
+   Setelah saya jalankan perintah
+
+   ```bash
+   docker compose run --rm liquibase update-sql --changelog-file=changelog/diff-staging-to-ponpesnurulyaqin.mysql.sql
+   ```
+
+   kenapa potongan hasil dry-run nya ke `masterep-annursulsel`?
+
+   ```text
+    --  Release Database Lock
+    UPDATE `masterep-annursulsel`.DATABASECHANGELOGLOCK SET LOCKED = 0, LOCKEDBY = NULL, LOCKGRANTED = NULL WHERE ID = 1;
+   ```
+
+   Apakah karena di file `.env` masih seperti ini `LIQUIBASE_URL=jdbc:mysql://mysql:3306/masterep-annursulsel?useSSL=false&allowPublicKeyRetrieval=true`?
+
+5. **Rollback changelog yang masuk ke `masterep-annursulsel`**
+
+   Dikarenakan tadi terjadi kesalahan changelog yang masuk ke `masterep-annursulsel` apakah bisa dirollback? jika bisa tunjukkan caranya!
+
+6. **Temuan kendala 1**
+
+   file `.env` sudah saya ubah agar mengarah ke `masterep-nurulyaqin` dan file yang dieksekusi adalah `changelog/diff-staging-to-ponpesnurulyaqin.mysql.sql`.
+   setelah saya eksekusi perintah `docker compose run --rm liquibase update` hasilnya seperti ini
+
+   ```
+   ERROR: Exception Details
+   ERROR: Exception Primary Class:  SQLSyntaxErrorException
+   ERROR: Exception Primary Reason:  Invalid default value for 'worksheet_updated_at'
+   ERROR: Exception Primary Source:  MySQL 8.0.46
+
+   Unexpected error running Liquibase: Migration failed for changeset changelog/diff-staging-to-ponpesnurulyaqin.mysql.sql::1794584573894-153::liquibase:
+       Reason: liquibase.exception.DatabaseException: Invalid default value for 'worksheet_updated_at' [Failed SQL: (1067) CREATE TABLE worksheet (worksheet_id INT AUTO_INCREMENT NOT NULL, worksheet_majors_id INT NOT NULL, worksheet_period_id INT NOT NULL, worksheet_nama_kepsek VARCHAR(100) NOT NULL, worksheet_nama_bendahara VARCHAR(100) NOT NULL, worksheet_nama_komite VARCHAR(100) NOT NULL, worksheet_nip_kepsek VARCHAR(20) NOT NULL, worksheet_nip_bendahara VARCHAR(20) NOT NULL, worksheet_email_komite VARCHAR(255) NOT NULL, worksheet_nominal FLOAT(12) DEFAULT 0 NULL, worksheet_status ENUM('A', 'B', 'TS', 'S', 'D') DEFAULT 'B' NOT NULL COMMENT 'S: Setuju
+   TS: Tidak Setuju
+   D: Diajukan
+   A: Aktif
+   B: Belum Aktif', worksheet_created_at timestamp(0) DEFAULT NOW() NOT NULL, worksheet_updated_at timestamp(0) DEFAULT null on update CURRENT_TIMESTAMP NOT NULL, CONSTRAINT PK_WORKSHEET PRIMARY KEY (worksheet_id));]
+
+   For more information, please use the --log-level flag
+   ```
+
+   tolong bantu cek dan perbaiki, lalu berikan ringkasan penyebabnya!
+
 ## Goals
 
 - [x] Pelajari dan berikan feedback dari plan 1
 - [x] Pelajari dan berikan feedback dari plan 2
 - [x] Pelajari dan berikan feedback dari plan 3
+- [x] Pelajari dan berikan feedback dari plan 4
+- [x] Pelajari dan berikan feedback dari plan 5
+- [x] Pelajari dan berikan feedback dari plan 6
 
 ## Closing
 
